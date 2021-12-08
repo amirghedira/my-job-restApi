@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     domain: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain' },
     status: { type: Boolean, default: true },
     profileImage: { type: String },
+    position: {
+        lat: { type: Number },
+        lng: { type: Number }
+    },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
     languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
     savedOffers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],
