@@ -188,6 +188,7 @@ exports.getConnectedUser = async (req, res) => {
                 }
             })
             .populate('domain')
+            .populate('domain.categories')
             .populate('languages')
             .populate('skills')
             .exec()
