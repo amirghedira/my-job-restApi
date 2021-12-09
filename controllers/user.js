@@ -188,7 +188,14 @@ exports.getConnectedUser = async (req, res) => {
                 }
             })
             .populate('domain')
-            .populate('domain.categories')
+            .populate({
+                path: 'domain',
+                model: 'Domain',
+                populate: {
+                    path: 'categories',
+                    model: 'Category'
+                }
+            })
             .populate('languages')
             .populate('skills')
             .exec()
