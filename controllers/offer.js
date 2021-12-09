@@ -20,6 +20,7 @@ exports.createOffer = async (req, res) => {
 }
 
 
+
 exports.getOffer = async (req, res) => {
     try {
         const offer = await Offer.findOne({ _id: req.params.offerId })
@@ -75,6 +76,31 @@ exports.getOffer = async (req, res) => {
             .populate('owner')
         relatedOffers = relatedOffers.filter(o => o._id.toString() != offer._id.toString())
         return res.status(200).json({ offer, relatedOffers })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+
+}
+
+
+
+exports.getOffers = async (req, res) => {
+    try {
+        const offers = await Offer.find()
+            .populate({
+                path: 'city',
+                model: 'City',
+                populate: {
+                    path: 'country',
+                    model: 'Country'
+                }
+            })
+            .populate('tags')
+            .populate('owner')
+            .exec()
+
+
+        return res.status(200).json({ offers })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

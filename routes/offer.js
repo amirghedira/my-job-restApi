@@ -8,11 +8,13 @@ const {
     deleteOffer,
     searchOffer,
     getOffersBytag,
-    getOffersByFollowers
+    getOffersByFollowers,
+    getOffers
 } = require('../controllers/offer')
 
 
 router.post('/', AuthGuard, createOffer)
+router.get('/', AuthGuard, getOffers)
 router.get('/search', searchOffer)
 router.get('/tag/:tag', getOffersBytag)
 router.get('/followers', AuthGuard, getOffersByFollowers)
