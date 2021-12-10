@@ -31,8 +31,6 @@ router.post('/', createUser)
 router.post('/token', updateAccessToken)
 router.post('/saved', AuthGuard, addSavedOffer)
 router.post('/follow', AuthGuard, followClient)
-router.post('/saved', AuthGuard, addSavedOffer)
-router.post('/follow', AuthGuard, followClient)
 router.post('/skill', AuthGuard, addUserSkill)
 
 

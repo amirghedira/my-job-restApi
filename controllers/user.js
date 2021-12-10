@@ -8,7 +8,7 @@ const City = require('../models/City')
 const Country = require('../models/Country')
 const Offer = require('../models/Offer')
 const mongoose = require('mongoose')
-const Language = require('../models/Language')
+const socket = require('socket.io-client')(process.env.HOST)
 
 
 exports.createUser = async (req, res) => {
@@ -103,7 +103,6 @@ exports.addSavedOffer = async (req, res) => {
         if (isValidId) {
             const offer = await Offer.findOne({ _id: offerId })
             if (offer) {
-
                 await User.updateOne({ _id: req.user._id }, { $push: { savedOffers: offer } })
                 return res.status(200).json({ message: 'offer successfully saved' })
             }
@@ -121,11 +120,24 @@ exports.addSavedOffer = async (req, res) => {
 exports.followClient = async (req, res) => {
     try {
         const client = await User.findOne({ _id: req.body.clientId })
+        const currentUser = await User.findOne({ _id: req.user._id })
         if (client) {
 
-            await User.updateOne({ _id: req.user._id }, { $push: { followers: req.body.clientId } })
+            await User.updateOne({ _id: client._id }, { $push: { followers: req.user._id } })
             return res.status(200).json({ message: 'successfully followed client' })
         }
+        const newNotification = {
+            type: 'following',
+            date: new Date().toISOString(),
+            user: client._id,
+            varibales: `{
+                user: { firstName: ${currentUser.firstName}, lastName: ${currentUser.lastName} },
+                date: ${new Date().toISOString()}
+            }`
+        }
+        await Notification.create(newNotification)
+
+        socket.emit('send-notification', { userId: client._id, notification: newNotification })
         return res.status(404).json({ message: 'Client not found' })
     } catch (error) {
         res.status(500).json({ error: error })
