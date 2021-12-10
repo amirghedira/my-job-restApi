@@ -69,13 +69,14 @@ exports.updateApplicantStatus = async (req, res) => {
         if (req.user._id != offer.owner)
             return res.status(409).json({ message: 'you dont have access to this resource' })
         const applicantIndex = offer.applicants.findIndex(applicant => applicant.user.toString() == req.params.applicantId.toString())
-        console.log(req.body.status == 'accepted')
 
         if (applicantIndex === -1)
             return res.status(404).json({ message: 'applicant not found' })
         if (req.body.status != 'accepted' && req.body.status != 'rejected')
             return res.status(409).json({ message: 'invalid application status must be (accepted or rejected)' })
         offer.applicants[applicantIndex].status = req.body.status
+
+        const client = await User.findOne({ _id: req.user._id })
         let newNotification
         if (req.body.status == 'accepted') {
 
@@ -85,6 +86,7 @@ exports.updateApplicantStatus = async (req, res) => {
                 user: offer.applicants[applicantIndex].user,
                 variables: `{
                     offer: { name:${offer.name}, _id:${offer._id} },
+                    client: { name:${client.name}, profileImage:${client.profileImage},_id:${client._id} },
                     date: ${new Date().toISOString()}
                 }`
             }
@@ -97,6 +99,7 @@ exports.updateApplicantStatus = async (req, res) => {
                 user: offer.applicants[applicantIndex].user,
                 variables: `{
                     offer: { name:${offer.name}, _id:${offer._id} },
+                    client: { name:${client.name}, profileImage:${client.profileImage},_id:${client._id} },
                     date: ${new Date().toISOString()}
                 }`
             }

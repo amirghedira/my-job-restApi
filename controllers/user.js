@@ -131,7 +131,7 @@ exports.followClient = async (req, res) => {
             date: new Date().toISOString(),
             user: client._id,
             variables: `{
-                user: { firstName: ${currentUser.firstName}, lastName: ${currentUser.lastName} },
+                user: {_id:${currentUser._id}, firstName: ${currentUser.firstName}, lastName: ${currentUser.lastName},profileImage:${currentUser.profileImage} },
                 date: ${new Date().toISOString()}
             }`
         }
@@ -162,6 +162,8 @@ exports.addUserSkill = async (req, res) => {
 
 exports.getConnectedUser = async (req, res) => {
     try {
+        console.log('heyyyyy')
+
         const user = await User.findOne({ _id: req.user._id })
             .populate({
                 path: 'savedOffers',
@@ -208,7 +210,6 @@ exports.getConnectedUser = async (req, res) => {
                     model: 'Category'
                 }
             })
-            .populate('languages')
             .populate('skills')
             .exec()
         const userNotifications = await Notification.find({ user: req.user._id })
