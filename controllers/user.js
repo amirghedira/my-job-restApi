@@ -131,8 +131,8 @@ exports.followClient = async (req, res) => {
             date: new Date().toISOString(),
             user: client._id,
             variables: `{
-                user: {_id:${currentUser._id}, firstName: ${currentUser.firstName}, lastName: ${currentUser.lastName},profileImage:${currentUser.profileImage} },
-                date: ${new Date().toISOString()}
+                user:{_id:${currentUser._id},firstName:${currentUser.firstName},lastName: ${currentUser.lastName},profileImage:${currentUser.profileImage}},
+                date:${new Date().toISOString()}
             }`
         }
         await Notification.create(newNotification)

@@ -20,9 +20,9 @@ exports.createOffer = async (req, res) => {
             date: new Date().toISOString(),
             user: currentClient.owner,
             variables: `{
-                offer: { name: ${createdOffer.name}, _id: ${createdOffer._id} },
-                client: { name: ${client.name}, _id: ${client._id},profileImage:${client.profileImage} },
-                date: ${new Date().toISOString()}
+                offer:{name:${createdOffer.name},_id:${createdOffer._id}},
+                client:{name:${client.name},_id:${client._id},profileImage:${client.profileImage}},
+                date:${new Date().toISOString()}
             }`
         }
         await Notification.create(newNotification)
@@ -45,9 +45,9 @@ exports.applyOffer = async (req, res) => {
             date: new Date().toISOString(),
             user: offer.owner,
             variables: `{
-                offer: { name:${offer.name}, _id:${offer._id} },
-                user: { firstName:${currentUser.firstName}, lastName:${currentUser.lastName},profileImage:${currentUser.profileImage} },
-                date: ${new Date().toISOString()}
+                offer:{name:${offer.name},_id:${offer._id}},
+                user:{firstName:${currentUser.firstName},lastName:${currentUser.lastName},profileImage:${currentUser.profileImage}},
+                date:${new Date().toISOString()}
             }`
         }
         await Notification.create(newNotification)
@@ -85,9 +85,9 @@ exports.updateApplicantStatus = async (req, res) => {
                 date: new Date().toISOString(),
                 user: offer.applicants[applicantIndex].user,
                 variables: `{
-                    offer: { name:${offer.name}, _id:${offer._id} },
-                    client: { name:${client.name}, profileImage:${client.profileImage},_id:${client._id} },
-                    date: ${new Date().toISOString()}
+                    offer:{name:${offer.name},_id:${offer._id}},
+                    client:{name:${client.name},profileImage:${client.profileImage},_id:${client._id} },
+                    date:${new Date().toISOString()}
                 }`
             }
 
@@ -98,9 +98,9 @@ exports.updateApplicantStatus = async (req, res) => {
                 date: new Date().toISOString(),
                 user: offer.applicants[applicantIndex].user,
                 variables: `{
-                    offer: { name:${offer.name}, _id:${offer._id} },
-                    client: { name:${client.name}, profileImage:${client.profileImage},_id:${client._id} },
-                    date: ${new Date().toISOString()}
+                    offer:{name:${offer.name},_id:${offer._id}},
+                    client:{name:${client.name},profileImage:${client.profileImage},_id:${client._id} },
+                    date:${new Date().toISOString()}
                 }`
             }
 
