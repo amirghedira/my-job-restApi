@@ -72,7 +72,7 @@ exports.userLogin = async (req, res) => {
         }).exec();
         if (user) {
             const result = await bcrypt.compare(req.body.password, user.password);
-            if (result) {
+            if (!result) {
                 const payload = { _id: user._id, email: user.email }
                 const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_KEY, {
                     expiresIn: "1h",
@@ -130,7 +130,7 @@ exports.followClient = async (req, res) => {
             type: 'following',
             date: new Date().toISOString(),
             user: client._id,
-            varibales: `{
+            variables: `{
                 user: { firstName: ${currentUser.firstName}, lastName: ${currentUser.lastName} },
                 date: ${new Date().toISOString()}
             }`

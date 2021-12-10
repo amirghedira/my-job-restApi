@@ -19,7 +19,7 @@ exports.createOffer = async (req, res) => {
             type: 'newOffer',
             date: new Date().toISOString(),
             user: currentClient.owner,
-            varibales: `{
+            variables: `{
                 offer: { name: ${createdOffer.name}, _id: ${createdOffer._id} },
                 client: { name: ${client.name}, _id: ${client._id} },
                 date: ${new Date().toISOString()}
@@ -39,12 +39,12 @@ exports.applyOffer = async (req, res) => {
     try {
 
         const currentUser = await User.findOne({ _id: req.user._id })
-        const offer = await Offer.findByIdAndUpdate(req.params.offerId, { $addToSet: { applicant: { user: req.user._id, status: 'pending' } } })
+        const offer = await Offer.findByIdAndUpdate(req.params.offerId, { $addToSet: { applicants: { user: req.user._id, status: 'pending', date: new Date().toISOString() } } })
         const newNotification = {
             type: 'appliedOffer',
             date: new Date().toISOString(),
             user: offer.owner,
-            varibales: `{
+            variables: `{
                 offer: { name:${offer.name}, _id:${offer._id} },
                 user: { firstName:${currentUser.firstName}, lastName:${currentUser.lastName} },
                 date: ${new Date().toISOString()}
@@ -66,10 +66,14 @@ exports.updateApplicantStatus = async (req, res) => {
 
     try {
         const offer = await Offer.findOne({ _id: req.params.offerId })
+        if (req.user._id != offer.owner)
+            return res.status(409).json({ message: 'you dont have access to this resource' })
         const applicantIndex = offer.applicants.findIndex(applicant => applicant.user.toString() == req.params.applicantId.toString())
+        console.log(req.body.status == 'accepted')
+
         if (applicantIndex === -1)
             return res.status(404).json({ message: 'applicant not found' })
-        if (req.body.status != 'accepted' || req.body.status != 'rejected')
+        if (req.body.status != 'accepted' && req.body.status != 'rejected')
             return res.status(409).json({ message: 'invalid application status must be (accepted or rejected)' })
         offer.applicants[applicantIndex].status = req.body.status
         let newNotification
@@ -79,7 +83,7 @@ exports.updateApplicantStatus = async (req, res) => {
                 type: 'acceptedApplication',
                 date: new Date().toISOString(),
                 user: offer.applicants[applicantIndex].user,
-                varibales: `{
+                variables: `{
                     offer: { name:${offer.name}, _id:${offer._id} },
                     date: ${new Date().toISOString()}
                 }`
@@ -91,7 +95,7 @@ exports.updateApplicantStatus = async (req, res) => {
                 type: 'rejectedApplication',
                 date: new Date().toISOString(),
                 user: offer.applicants[applicantIndex].user,
-                varibales: `{
+                variables: `{
                     offer: { name:${offer.name}, _id:${offer._id} },
                     date: ${new Date().toISOString()}
                 }`
@@ -103,7 +107,7 @@ exports.updateApplicantStatus = async (req, res) => {
         socket.emit('send-notification', { userId: offer.applicants[applicantIndex].user, notification: newNotification })
 
         await offer.save()
-        res.status(200).json({ message: 'application successfully updated' })
+        return res.status(200).json({ message: 'application successfully updated' })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

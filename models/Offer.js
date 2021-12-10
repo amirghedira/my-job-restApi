@@ -12,7 +12,10 @@ const offerSchema = new mongoose.Schema({
         unity: { type: String, enum: ['day', 'month', 'year'] }
     },
     overview: { type: String },
-    applicants: [{ user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, status: { type: String, default: 'pending' } }],
+    applicants: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        status: { type: String, default: 'pending' }, date: { type: Date }
+    }],
     jobDescription: { type: String, required: true },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' }
