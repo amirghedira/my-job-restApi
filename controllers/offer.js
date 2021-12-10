@@ -21,7 +21,7 @@ exports.createOffer = async (req, res) => {
             user: currentClient.owner,
             variables: `{
                 offer: { name: ${createdOffer.name}, _id: ${createdOffer._id} },
-                client: { name: ${client.name}, _id: ${client._id} },
+                client: { name: ${client.name}, _id: ${client._id},profileImage:${client.profileImage} },
                 date: ${new Date().toISOString()}
             }`
         }
@@ -46,7 +46,7 @@ exports.applyOffer = async (req, res) => {
             user: offer.owner,
             variables: `{
                 offer: { name:${offer.name}, _id:${offer._id} },
-                user: { firstName:${currentUser.firstName}, lastName:${currentUser.lastName} },
+                user: { firstName:${currentUser.firstName}, lastName:${currentUser.lastName},profileImage:${currentUser.profileImage} },
                 date: ${new Date().toISOString()}
             }`
         }
