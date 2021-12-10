@@ -9,7 +9,7 @@ const Country = require('../models/Country')
 const Offer = require('../models/Offer')
 const mongoose = require('mongoose')
 const socket = require('socket.io-client')(process.env.HOST)
-
+const Notification = require('../models/Notification')
 
 exports.createUser = async (req, res) => {
     try {
@@ -211,7 +211,8 @@ exports.getConnectedUser = async (req, res) => {
             .populate('languages')
             .populate('skills')
             .exec()
-        res.status(200).json({ connectedUser: user })
+        const userNotifications = await Notification.find({ user: req.user._id })
+        res.status(200).json({ connectedUser: user, notifications: userNotifications })
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: error.message });
@@ -321,6 +322,15 @@ exports.getClient = async (req, res) => {
 
 }
 
+exports.markNotificationsAsRead = async (req, res) => {
+
+    try {
+        await Notification.updateMany({ user: req.user._id }, { $set: { read: true } })
+        res.status(200).json({ message: 'notifications successfully readed' });
+    } catch (error) {
+        res.status(500).json({ error: error });
+    }
+}
 
 exports.updateUserInfo = async (req, res) => {
     try {
@@ -337,6 +347,7 @@ exports.updateUserInfo = async (req, res) => {
         res.status(500).json({ error: error });
     }
 }
+
 
 
 

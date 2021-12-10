@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const Domain = require('../models/Domain')
 const socket = require('socket.io-client')(process.env.HOST)
 const Notification = require('../models/Notification')
+
 exports.createOffer = async (req, res) => {
     try {
         const currentClient = await User.findOne({ _id: req.user._id })

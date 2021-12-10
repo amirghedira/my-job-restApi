@@ -20,6 +20,7 @@ const
         updateUserSkill,
         deleteUserSkill,
         addUserSkill,
+        markNotificationsAsRead
     } = require('../controllers/user')
 const AuthGuard = require('../middleware/AuthGuard')
 const router = express.Router()
@@ -46,7 +47,7 @@ router.patch('/logout', AuthGuard, userLogout)
 router.patch('/', AuthGuard, updateUserInfo)
 router.patch('/update-password', AuthGuard, updateUserPassword)
 router.patch('/skill/:skillId', AuthGuard, updateUserSkill)
-
+router.patch('/notifications', AuthGuard, markNotificationsAsRead)
 
 router.delete('/saved/:offerId', AuthGuard, deleteSavedOffer)
 router.delete('/follow/:clientId', AuthGuard, unFollowClient)
