@@ -23,7 +23,7 @@ exports.createOffer = async (req, res) => {
             user: currentClient.owner,
             variables: `{
                 offer:{name:${createdOffer.name},_id:${createdOffer._id}},
-                client:{name:${client.name},_id:${client._id},profileImage:${client.profileImage}},
+                client:{name:${currentClient.name},_id:${currentClient._id},profileImage:${currentClient.profileImage}},
                 date:${new Date().toISOString()}
             }`
         }
