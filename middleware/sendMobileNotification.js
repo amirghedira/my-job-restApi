@@ -33,6 +33,7 @@ module.exports = (content, recipient) => {
         body: JSON.stringify({
             to: recipient,
             sound: 'default',
+            icon: require('../assets/my-job.png'),
             title: 'Notification',
             body: notificationContent,
             data: notification
