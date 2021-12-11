@@ -11,7 +11,8 @@ const {
     getOffersByFollowers,
     getOffers,
     applyOffer,
-    updateApplicantStatus
+    updateApplicantStatus,
+    getClientOffers
 } = require('../controllers/offer')
 
 
@@ -19,6 +20,7 @@ router.post('/', AuthGuard, createOffer)
 router.post('/:offerId/apply', AuthGuard, applyOffer)
 
 router.get('/', AuthGuard, getOffers)
+router.get('/client', AuthGuard, getClientOffers)
 router.get('/search', searchOffer)
 router.get('/tag/:tag', getOffersBytag)
 router.get('/followers', AuthGuard, getOffersByFollowers)

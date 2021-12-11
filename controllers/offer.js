@@ -39,6 +39,30 @@ exports.createOffer = async (req, res) => {
     }
 
 }
+exports.getClientOffers = async (req, res) => {
+
+    try {
+        const offers = await Offer.find({ owner: req.user._id })
+            .populate({
+                path: 'city',
+                model: 'City',
+                populate: {
+                    path: 'country',
+                    model: 'Country'
+                }
+            })
+            .populate('tags')
+            .populate('owner')
+            .exec()
+
+
+        return res.status(200).json({ offers })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+
+}
+
 
 exports.applyOffer = async (req, res) => {
 
