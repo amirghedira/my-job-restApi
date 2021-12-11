@@ -35,7 +35,7 @@ module.exports = (content, recipient) => {
             sound: 'default',
             title: 'Notification',
             body: notificationContent,
-            notification: notification
+            data: notification
         })
 
     }, (error, response, body) => {
