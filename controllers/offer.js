@@ -21,11 +21,11 @@ exports.createOffer = async (req, res) => {
             type: 'newOffer',
             date: new Date().toISOString(),
             user: currentClient.owner,
-            variables: `{
-                offer:{name:${createdOffer.name},_id:${createdOffer._id}},
-                client:{name:${currentClient.name},_id:${currentClient._id},profileImage:${currentClient.profileImage}},
-                date:${new Date().toISOString()}
-            }`
+            variables: JSON.stringify({
+                offer: { name: createdOffer.name, _id: createdOffer._id },
+                client: { name: currentClient.name, _id: currentClient._id, profileImage: currentClient.profileImage },
+                date: new Date().toISOString()
+            })
         }
         await Notification.create(newNotification)
         socket.emit('broadcast-notification', { usersIds: currentClient.followers.map(f => f._id), notification: newNotification })
