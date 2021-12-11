@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     savedOffers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],
     appliedOffers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    notificationToken: { type: String },
     socials: {
         website: { type: String },
         facebook: { type: String },

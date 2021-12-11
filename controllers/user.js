@@ -11,6 +11,8 @@ const mongoose = require('mongoose')
 const socket = require('socket.io-client')(process.env.HOST)
 const Notification = require('../models/Notification')
 
+const sendMobileNotification = require('../middleware/sendMobileNotification')
+
 exports.createUser = async (req, res) => {
     try {
         const user = await User.findOne({
@@ -96,6 +98,15 @@ exports.userLogin = async (req, res) => {
     }
 };
 
+
+exports.updateUserNotificationToken = async (req, res) => {
+    try {
+        await User.updateOne({ _id: req.user._id }, { $set: { notificationToken: req.body.token } })
+        res.status(200).json({ message: 'notification token successfully updated' })
+    } catch (error) {
+        res.status(500).json({ error: error })
+    }
+}
 exports.addSavedOffer = async (req, res) => {
     try {
         const offerId = req.body.offerId
@@ -130,14 +141,15 @@ exports.followClient = async (req, res) => {
             type: 'following',
             date: new Date().toISOString(),
             user: client._id,
-            variables: `{
-                user:{_id:${currentUser._id},firstName:${currentUser.firstName},lastName: ${currentUser.lastName},profileImage:${currentUser.profileImage}},
-                date:${new Date().toISOString()}
-            }`
+            variables: JSON.stringify({
+                user: { _id: currentUser._id, firstName: currentUser.firstName, lastName: currentUser.lastName, profileImage: currentUser.profileImage },
+                date: new Date().toISOString()
+            })
         }
         await Notification.create(newNotification)
 
         socket.emit('send-notification', { userId: client._id, notification: newNotification })
+        sendMobileNotification(JSON.stringify(newNotification), client.notificationToken)
         return res.status(404).json({ message: 'Client not found' })
     } catch (error) {
         res.status(500).json({ error: error })
