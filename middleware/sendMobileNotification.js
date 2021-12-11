@@ -32,7 +32,6 @@ module.exports = (content, recipient) => {
         "url": "https://exp.host/--/api/v2/push/send",
         body: JSON.stringify({
             to: recipient,
-            sound: 'default',
             title: 'Notification',
             body: notificationContent,
             data: notification
