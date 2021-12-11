@@ -14,8 +14,14 @@ mongoose.connect(process.env.MONGO_INFO, { useNewUrlParser: true, useUnifiedTopo
         console.log(err)
     })
 
+
+const path = require('path')
+app.use('/static', express.static(path.join(__dirname, 'assets')))
+
 // Enable CORS
 app.use(cors())
+
+
 // Body parser
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
