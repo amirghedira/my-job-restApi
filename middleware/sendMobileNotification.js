@@ -6,8 +6,6 @@ module.exports = (content, recipient) => {
     switch (notification.type) {
         case 'appliedOffer':
             notificationContent = `${notificationVariables.user.firstName} ${notificationVariables.user.lastName} has applied to ${notificationVariables.offer.name}`
-            setNotificationImage(notificationVariables.user.profileImage)
-
             break;
         case 'acceptedApplication':
             notificationContent = `Your application at ${notificationVariables.offer.name} has been accepted`
