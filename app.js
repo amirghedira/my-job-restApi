@@ -27,7 +27,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 
+const { upload } = require('./middleware/awsUpload')
 
+app.post('/upload', upload.array('files', 5), (req, res) => {
+    const imagesLinks = req.files.map(file => file.location)
+    res.status(200).json(imagesLinks)
+})
 
 app.get('/health', (req, res) => {
     res.status(200).send(`my-job backend online`)
