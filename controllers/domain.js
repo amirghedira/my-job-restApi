@@ -6,8 +6,9 @@ const Category = require('../models/Category')
 exports.getDomains = async (req, res) => {
 
     try {
-        const domains = await Domain.find().exec()
+        const domains = await Domain.find()
             .populate('categories')
+            .exec()
         res.status(200).json({ domains })
     } catch (error) {
         res.status(500).json({ error: error.message })
