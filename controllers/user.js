@@ -206,6 +206,34 @@ exports.getConnectedUser = async (req, res) => {
                 },
             })
             .populate({
+                path: 'appliedOffers',
+                model: 'Offer',
+                populate: {
+                    path: 'city',
+                    model: 'City',
+                    populate: {
+                        path: 'country',
+                        model: 'Country'
+                    }
+                },
+            })
+            .populate({
+                path: 'appliedOffers',
+                model: 'Offer',
+                populate: {
+                    path: 'owner',
+                    model: 'User'
+                },
+            })
+            .populate({
+                path: 'appliedOffers',
+                model: 'Offer',
+                populate: {
+                    path: 'tags',
+                    model: 'Tag'
+                },
+            })
+            .populate({
                 path: 'city',
                 model: 'City',
                 populate: {

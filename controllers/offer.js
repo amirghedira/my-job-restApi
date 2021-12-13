@@ -69,10 +69,10 @@ exports.applyOffer = async (req, res) => {
     try {
 
         const currentUser = await User.findOne({ _id: req.user._id })
-
         await Offer.updateOne({ _id: req.params.offerId }, { $addToSet: { applicants: { user: req.user._id, status: 'pending', date: new Date().toISOString() } } })
         const offer = await Offer.findOne({ _id: req.params.offerId })
             .populate('owner')
+        await User.updateOne({ _id: offer._id }, { $push: { appliedOffers: offer } })
         const newNotification = {
             type: 'appliedOffer',
             date: new Date().toISOString(),
