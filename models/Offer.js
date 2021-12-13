@@ -14,7 +14,8 @@ const offerSchema = new mongoose.Schema({
     overview: { type: String },
     applicants: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        status: { type: String, default: 'pending' }, date: { type: Date }
+        status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+        date: { type: Date }
     }],
     jobDescription: { type: String, required: true },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],

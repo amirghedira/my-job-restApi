@@ -53,6 +53,7 @@ exports.getClientOffers = async (req, res) => {
             })
             .populate('tags')
             .populate('owner')
+            .populate('applicants.user')
             .exec()
 
 
