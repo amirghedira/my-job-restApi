@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema({
     status: { type: Boolean, default: true },
     profileImage: { type: String },
     position: {
-        lat: { type: Number },
-        lng: { type: Number }
+        latitude: { type: Number },
+        longitude: { type: Number }
     },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
     languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
