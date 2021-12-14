@@ -421,6 +421,8 @@ exports.userLogout = async (req, res) => {
         await Token.deleteOne({
             user: req.user._id,
         });
+        await User.updateOne({ _id: req.user._id }, { $set: { notificationToken: null } })
+
         res.status(200).json({
             message: "user logged out",
         });
@@ -649,7 +651,7 @@ exports.unFollowClient = async (req, res) => {
         const client = await User.findOne({ _id: req.params.clientId })
         if (client) {
 
-            await User.updateOne({ _id: req.user._id }, { $pull: { followers: req.params.clientId } })
+            await User.updateOne({ _id: req.params.clientId }, { $pull: { followers: req.user._id } })
             return res.status(200).json({ message: 'successfully unfollowed client' })
         }
         return res.status(404).json({ message: 'Client not found' })
