@@ -281,7 +281,6 @@ exports.getOffersBytag = async (req, res) => {
     }
 }
 
-
 exports.searchOffer = async (req, res) => {
     try {
         let searchTerm = req.query.searchTerm
