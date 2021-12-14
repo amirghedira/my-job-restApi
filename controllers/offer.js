@@ -231,7 +231,7 @@ exports.getRecommandedOffers = async (req, res) => {
             .exec()
 
 
-        return res.status(200).json({ offers })
+        return res.status(200).json({ offers: offers.slice(0, 5) })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
