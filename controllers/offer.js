@@ -5,10 +5,10 @@ const Country = require('../models/Country')
 const User = require('../models/User')
 const mongoose = require('mongoose')
 const Domain = require('../models/Domain')
+const Category = require('../models/Category')
 const socket = require('socket.io-client')(process.env.HOST)
 const Notification = require('../models/Notification')
 const sendMobileNotification = require('../middleware/sendMobileNotification')
-
 exports.createOffer = async (req, res) => {
     try {
         const currentClient = await User.findOne({ _id: req.user._id })
@@ -70,9 +70,13 @@ exports.applyOffer = async (req, res) => {
     try {
 
         const currentUser = await User.findOne({ _id: req.user._id })
-        await Offer.updateOne({ _id: req.params.offerId }, { $addToSet: { applicants: { user: req.user._id, status: 'pending', date: new Date().toISOString() } } })
+
         const offer = await Offer.findOne({ _id: req.params.offerId })
             .populate('owner')
+        if (offer.applicants.map(app => app.user.toString()).includes(req.user._id.toString()))
+            return res.status(409).json({ message: 'you already applied to this offer' })
+        offer.applicants.push({ user: req.user._id, status: 'pending', date: new Date().toISOString() })
+        await offer.save()
         await User.updateOne({ _id: req.user._id }, { $push: { appliedOffers: offer } })
         const newNotification = {
             type: 'appliedOffer',
@@ -213,6 +217,31 @@ exports.getOffer = async (req, res) => {
 }
 
 
+exports.getRecommandedOffers = async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: req.user._id })
+        const userDomain = await Domain.findOne({ _id: user.domain })
+        const offers = await Offer.find({ category: { $in: userDomain.categories } })
+            .populate({
+                path: 'city',
+                model: 'City',
+                populate: {
+                    path: 'country',
+                    model: 'Country'
+                }
+            })
+            .populate('tags')
+            .populate('owner')
+            .exec()
+
+
+        return res.status(200).json({ offers: offers.slice(0, 5) })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+
+}
+
 
 exports.getOffers = async (req, res) => {
     try {
@@ -281,15 +310,14 @@ exports.getOffersBytag = async (req, res) => {
     }
 }
 
-
 exports.searchOffer = async (req, res) => {
     try {
         let searchTerm = req.query.searchTerm
         let location = req.query.location
         let searchedCitiesId = [];
-        let ownersId
-        let domainsId
-        let searchedTagsId
+        let ownersId = []
+        let categoriesId = []
+        let searchedTagsId = []
         let offers;
         if (location) {
             const searchedCities = await City.find({ name: { $regex: `(?:${location.split(' ').join('|')})`, $options: 'i' } })
@@ -311,13 +339,22 @@ exports.searchOffer = async (req, res) => {
             const searchedOwners = await User.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
             ownersId = searchedOwners.map(owner => owner._id)
             const searchedDomains = await Domain.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
-            domainsId = searchedDomains.map(searchedDomain => searchedDomain._id)
+            const searchedCategories = await Category.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
+
+            searchedDomains.forEach(searchedDomain => {
+                searchedDomain.categories.forEach(category => {
+                    categoriesId.push(category)
+
+                })
+            })
+
+            categoriesId = [...categoriesId, ...searchedCategories.map(category => category._id)]
 
             const searchedTags = await Tag.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
             searchedTagsId = searchedTags.map(tag => tag._id)
         }
 
-        if (searchTerm && location)
+        if (searchTerm && location) {
             offers = await Offer.find({
                 $or: [
                     {
@@ -328,7 +365,7 @@ exports.searchOffer = async (req, res) => {
 
                     },
                     {
-                        domain: { $in: domainsId }
+                        category: { $in: categoriesId }
                     },
                     {
                         tags: { $in: searchedTagsId }
@@ -347,9 +384,8 @@ exports.searchOffer = async (req, res) => {
                 })
                 .populate('tags')
                 .populate('owner')
-
-        else {
-            if (searchTerm)
+        } else {
+            if (searchTerm) {
                 offers = await Offer.find({
                     $or: [
                         {
@@ -360,7 +396,7 @@ exports.searchOffer = async (req, res) => {
 
                         },
                         {
-                            domain: { $in: domainsId }
+                            category: { $in: categoriesId }
                         },
                         {
                             tags: { $in: searchedTagsId }
@@ -376,7 +412,9 @@ exports.searchOffer = async (req, res) => {
                     })
                     .populate('tags')
                     .populate('owner')
-            else
+            }
+            else {
+                console.log('else')
                 offers = await Offer.find({ city: { $in: searchedCitiesId } })
                     .populate({
                         path: 'city',
@@ -388,12 +426,14 @@ exports.searchOffer = async (req, res) => {
                     })
                     .populate('tags')
                     .populate('owner')
+            }
         }
 
         res.status(200).json({ offers: offers })
 
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: error });
 
     }
