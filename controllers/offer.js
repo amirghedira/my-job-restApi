@@ -5,10 +5,10 @@ const Country = require('../models/Country')
 const User = require('../models/User')
 const mongoose = require('mongoose')
 const Domain = require('../models/Domain')
+const Category = require('../models/Category')
 const socket = require('socket.io-client')(process.env.HOST)
 const Notification = require('../models/Notification')
 const sendMobileNotification = require('../middleware/sendMobileNotification')
-
 exports.createOffer = async (req, res) => {
     try {
         const currentClient = await User.findOne({ _id: req.user._id })
@@ -286,9 +286,9 @@ exports.searchOffer = async (req, res) => {
         let searchTerm = req.query.searchTerm
         let location = req.query.location
         let searchedCitiesId = [];
-        let ownersId
-        let domainsId
-        let searchedTagsId
+        let ownersId = []
+        let categoriesId = []
+        let searchedTagsId = []
         let offers;
         if (location) {
             const searchedCities = await City.find({ name: { $regex: `(?:${location.split(' ').join('|')})`, $options: 'i' } })
@@ -310,13 +310,22 @@ exports.searchOffer = async (req, res) => {
             const searchedOwners = await User.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
             ownersId = searchedOwners.map(owner => owner._id)
             const searchedDomains = await Domain.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
-            domainsId = searchedDomains.map(searchedDomain => searchedDomain._id)
+            const searchedCategories = await Category.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
+
+            searchedDomains.forEach(searchedDomain => {
+                searchedDomain.categories.forEach(category => {
+                    categoriesId.push(category)
+
+                })
+            })
+
+            categoriesId = [...categoriesId, ...searchedCategories.map(category => category._id)]
 
             const searchedTags = await Tag.find({ name: { $regex: `(?:${searchTerm.split(' ').join('|')})`, $options: 'i' } })
             searchedTagsId = searchedTags.map(tag => tag._id)
         }
 
-        if (searchTerm && location)
+        if (searchTerm && location) {
             offers = await Offer.find({
                 $or: [
                     {
@@ -327,7 +336,7 @@ exports.searchOffer = async (req, res) => {
 
                     },
                     {
-                        domain: { $in: domainsId }
+                        category: { $in: categoriesId }
                     },
                     {
                         tags: { $in: searchedTagsId }
@@ -346,9 +355,8 @@ exports.searchOffer = async (req, res) => {
                 })
                 .populate('tags')
                 .populate('owner')
-
-        else {
-            if (searchTerm)
+        } else {
+            if (searchTerm) {
                 offers = await Offer.find({
                     $or: [
                         {
@@ -359,7 +367,7 @@ exports.searchOffer = async (req, res) => {
 
                         },
                         {
-                            domain: { $in: domainsId }
+                            category: { $in: categoriesId }
                         },
                         {
                             tags: { $in: searchedTagsId }
@@ -375,7 +383,9 @@ exports.searchOffer = async (req, res) => {
                     })
                     .populate('tags')
                     .populate('owner')
-            else
+            }
+            else {
+                console.log('else')
                 offers = await Offer.find({ city: { $in: searchedCitiesId } })
                     .populate({
                         path: 'city',
@@ -387,12 +397,14 @@ exports.searchOffer = async (req, res) => {
                     })
                     .populate('tags')
                     .populate('owner')
+            }
         }
 
         res.status(200).json({ offers: offers })
 
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: error });
 
     }
