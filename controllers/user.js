@@ -421,6 +421,8 @@ exports.userLogout = async (req, res) => {
         await Token.deleteOne({
             user: req.user._id,
         });
+        await User.updateOne({ _id: req.user._id }, { $set: { notificationToken: null } })
+
         res.status(200).json({
             message: "user logged out",
         });
