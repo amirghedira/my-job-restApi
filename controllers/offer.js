@@ -213,6 +213,31 @@ exports.getOffer = async (req, res) => {
 }
 
 
+exports.getRecommandedOffers = async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: req.user._id })
+        const userDomain = await Domain.findOne({ _id: user.domain })
+        const offers = await Offer.find({ category: { $in: userDomain.categories } })
+            .populate({
+                path: 'city',
+                model: 'City',
+                populate: {
+                    path: 'country',
+                    model: 'Country'
+                }
+            })
+            .populate('tags')
+            .populate('owner')
+            .exec()
+
+
+        return res.status(200).json({ offers })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+
+}
+
 
 exports.getOffers = async (req, res) => {
     try {
