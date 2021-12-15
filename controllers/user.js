@@ -315,7 +315,6 @@ exports.getConsultant = async (req, res) => {
                 }
             })
             .populate('skills')
-            .populate('languages')
             .exec()
 
         if (!user)
