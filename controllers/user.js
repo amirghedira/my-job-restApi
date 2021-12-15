@@ -74,7 +74,7 @@ exports.userLogin = async (req, res) => {
         }).exec();
         if (user) {
             const result = await bcrypt.compare(req.body.password, user.password);
-            if (!result) {
+            if (result) {
                 const payload = { _id: user._id, email: user.email }
                 const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_KEY, {
                     expiresIn: "1h",
